@@ -60,6 +60,9 @@ jobs:
       - name: Smoke test (Linux)
         if: runner.os == 'Linux'
         run: |
+          # The package adds a menu entry; headless runners lack the menu
+          # directories that every desktop Linux has.
+          sudo mkdir -p /usr/share/desktop-directories /usr/share/applications
           sudo apt-get install -y ./target/dist/*.deb
           "/opt/topic-modeling-tool/bin/Topic Modeling Tool" \
             --batch src/test/resources/data/subset "$RUNNER_TEMP/smoke" 5

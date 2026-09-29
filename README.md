@@ -23,7 +23,11 @@ included, so you don't need to install it separately.
 * **Anywhere with Java 17 or later:** `TopicModelingTool.jar` (run with
   `java -jar TopicModelingTool.jar`)
 
-On a Mac, open the `.dmg` and drag the app into your Applications folder.
+On a Mac, open the `.dmg` and drag the app into your Applications folder. The
+app is not yet signed by Apple, so the first time you open it macOS will say
+it "cannot be verified". Click **Done**, then open **System Settings → Privacy
+& Security**, scroll down, and click **Open Anyway** next to the message about
+Topic Modeling Tool. You only need to do this once.
 
 ## Use
 
@@ -63,6 +67,16 @@ words before modeling.
 Optionally, choose a CSV file in **Optional Settings → Metadata file**. The first
 column must be the file name (for example `letter-1851-03-04.txt`); the other
 columns are copied into `topics-metadata.csv` and shown on each document page.
+
+### Command line
+
+To train without opening a window (for example in a script), pass `--batch`
+with an input folder, an output folder and optionally the number of topics.
+All other settings use their defaults.
+
+```
+java -jar TopicModelingTool.jar --batch my-texts results 20
+```
 
 ## Build from source
 

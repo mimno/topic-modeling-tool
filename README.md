@@ -16,9 +16,9 @@ Download the installer for your computer from the
 [Releases](https://github.com/mimno/topic-modeling-tool/releases) page. Java is
 included, so you don't need to install it separately.
 
-* **Mac (Apple Silicon: M1 and later):** `Topic Modeling Tool-<version>-mac-arm64.dmg`
-* **Mac (Intel):** `Topic Modeling Tool-<version>-mac-x64.dmg`
-* **Windows:** `Topic Modeling Tool-<version>.msi`
+* **Mac (Apple Silicon: M1 and later):** `TopicModelingTool-<version>-mac-arm64.dmg`
+* **Mac (Intel):** `TopicModelingTool-<version>-mac-x64.dmg`
+* **Windows:** `TopicModelingTool-<version>.msi`
 * **Linux (Debian/Ubuntu):** the `.deb` file
 * **Anywhere with Java 17 or later:** `TopicModelingTool.jar` (run with
   `java -jar TopicModelingTool.jar`)

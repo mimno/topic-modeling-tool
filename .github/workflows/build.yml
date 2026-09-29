@@ -103,11 +103,16 @@ jobs:
         with:
           path: dist
 
+      # GitHub turns spaces in asset names into dots, so drop them, and tell
+      # the two Mac builds apart: TopicModelingTool-2.0.0-mac-arm64.dmg
       - name: Name installers by platform
         run: |
           for dir in dist/TopicModelingTool-mac-*; do
             label=${dir#dist/TopicModelingTool-}
             for f in "$dir"/*.dmg; do mv "$f" "${f%.dmg}-$label.dmg"; done
+          done
+          for f in dist/*/"Topic Modeling Tool"*; do
+            mv "$f" "$(dirname "$f")/$(basename "$f" | sed 's/^Topic Modeling Tool/TopicModelingTool/')"
           done
 
       - uses: softprops/action-gh-release@v2

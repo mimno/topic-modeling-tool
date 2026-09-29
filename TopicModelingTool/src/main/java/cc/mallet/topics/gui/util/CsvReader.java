@@ -250,7 +250,7 @@ public class CsvReader implements Iterable<String[]> {
                 quoteCount += Util.count(current, quote);
                 if (quoteCount % 2 == 0) {
                     current = trimQuotes(acc.toString());
-                    current.replace("\"\"", "\"");
+                    current = current.replace("\"\"", "\"");
                     logicalCells.add(current);
                     acc.setLength(0);
                 } else {

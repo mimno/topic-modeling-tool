@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14        # Apple Silicon
+            label: mac-arm64
+          - os: macos-13        # Intel
+            label: mac-x64
+          - os: windows-latest
+            label: windows
+          - os: ubuntu-latest
+            label: linux
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: TopicModelingTool
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build and test
+        run: mvn -B package
+
+      - name: Package installer
+        run: ./package-app.sh
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: TopicModelingTool-${{ matrix.label }}
+          path: TopicModelingTool/target/dist/*
+
+      - name: Upload runnable jar
+        if: matrix.label == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: TopicModelingTool-jar
+          path: TopicModelingTool/target/TopicModelingTool.jar
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Name installers by platform
+        run: |
+          for dir in dist/TopicModelingTool-mac-*; do
+            label=${dir#dist/TopicModelingTool-}
+            for f in "$dir"/*.dmg; do mv "$f" "${f%.dmg}-$label.dmg"; done
+          done
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
+          generate_release_notes: true

@@ -18,7 +18,7 @@ jobs:
         include:
           - os: macos-14        # Apple Silicon
             label: mac-arm64
-          - os: macos-13        # Intel
+          - os: macos-15-intel  # Intel
             label: mac-x64
           - os: windows-latest
             label: windows

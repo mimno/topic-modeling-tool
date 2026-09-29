@@ -22,7 +22,7 @@ jobs:
             label: mac-x64
           - os: windows-latest
             label: windows
-          - os: ubuntu-latest
+          - os: ubuntu-22.04    # oldest supported; its .deb also installs on newer releases
             label: linux
     runs-on: ${{ matrix.os }}
     defaults:
@@ -46,6 +46,37 @@ jobs:
 
       - name: Package installer
         run: ./package-app.sh
+
+      # Install each package the way a user would, then train a small model
+      # with the installed app in batch mode.
+      - name: Smoke test (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          hdiutil attach -nobrowse -mountpoint "$RUNNER_TEMP/dmg" target/dist/*.dmg
+          "$RUNNER_TEMP/dmg/Topic Modeling Tool.app/Contents/MacOS/Topic Modeling Tool" \
+            --batch src/test/resources/data/subset "$RUNNER_TEMP/smoke" 5
+          ls "$RUNNER_TEMP"/smoke/subset-*/output_html/index.html
+
+      - name: Smoke test (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y ./target/dist/*.deb
+          "/opt/topic-modeling-tool/bin/Topic Modeling Tool" \
+            --batch src/test/resources/data/subset "$RUNNER_TEMP/smoke" 5
+          ls "$RUNNER_TEMP"/smoke/subset-*/output_html/index.html
+
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $msi = (Get-ChildItem target/dist/*.msi).FullName
+          $install = Start-Process msiexec -Wait -PassThru -ArgumentList "/i `"$msi`" /qn /l*v install.log"
+          if ($install.ExitCode -ne 0) { Get-Content install.log -Tail 50; exit 1 }
+          $exe = "C:\Program Files\Topic Modeling Tool\Topic Modeling Tool.exe"
+          $out = Join-Path $env:RUNNER_TEMP "smoke"
+          $run = Start-Process $exe -Wait -PassThru -ArgumentList "--batch", "src/test/resources/data/subset", "`"$out`"", "5"
+          if ($run.ExitCode -ne 0) { exit 1 }
+          Get-ChildItem "$out/subset-*/output_html/index.html"
 
       - name: Upload installer
         uses: actions/upload-artifact@v4

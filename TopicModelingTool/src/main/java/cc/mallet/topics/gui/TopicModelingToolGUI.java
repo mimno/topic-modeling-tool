@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
@@ -302,8 +303,14 @@ public class TopicModelingToolGUI {
 
     /**
      * Arguments (all optional): input folder, output folder, metadata file.
+     * With {@code --batch} as the first argument, train without a window;
+     * see {@link TopicModelingRun#runBatch}.
      */
     public static void main(String[] args) {
+        if (args.length > 0 && args[0].equals("--batch")) {
+            System.exit(TopicModelingRun.runBatch(Arrays.copyOfRange(args, 1, args.length)));
+        }
+
         System.setProperty("apple.awt.application.name", APP_NAME);
         System.setProperty("apple.laf.useScreenMenuBar", "true");
 

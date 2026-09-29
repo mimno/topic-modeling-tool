@@ -60,6 +60,35 @@ public final class TopicModelingRun {
         return new Result(outputDir, htmlIndex);
     }
 
+    /**
+     * Command-line mode: {@code INPUT_FOLDER OUTPUT_FOLDER [NUM_TOPICS]}, with
+     * all other settings at their defaults. Prints the results folder and
+     * returns a process exit code.
+     */
+    static int runBatch(String[] args) {
+        if (args.length < 2 || args.length > 3) {
+            System.err.println("Usage: --batch INPUT_FOLDER OUTPUT_FOLDER [NUM_TOPICS]");
+            return 2;
+        }
+        TrainingOptions options = new TrainingOptions();
+        options.inputDir = Path.of(args[0]);
+        options.outputDir = Path.of(args[1]);
+        try {
+            if (args.length == 3) {
+                options.numTopics = Integer.parseInt(args[2]);
+            }
+            Result result = run(options, new Listener() {});
+            System.out.println(result.outputDir());
+            return 0;
+        } catch (NumberFormatException e) {
+            System.err.println("NUM_TOPICS must be a number: " + args[2]);
+            return 2;
+        } catch (IOException | RuntimeException e) {
+            System.err.println("Error: " + e.getMessage());
+            return 1;
+        }
+    }
+
     /** The chosen output folder, or a new timestamped subfolder of it. */
     static Path resolveOutputDir(TrainingOptions options) {
         if (!options.timestampOutput) {
